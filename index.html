@@ -10,7 +10,7 @@
 <link rel="manifest" href="./manifest.json">
 <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
-<title>TAXI DJ v21 - PWA safe area fix</title>
+<title>TAXI DJ v22 - full history</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800&family=Noto+Sans+KR:wght@500;700&display=swap');
 :root{--bg:#121212;--card:#1e1e1e;--card-border:#2a2a2a;--text:#fff;--dim:#999;--dim2:#666;--yellow:#ffcc00}
@@ -49,50 +49,22 @@ main{flex:1;padding:16px 16px 120px}
 <div id="tabs"><button class="tab on" data-tab="보관함">보관함</button><button class="tab" data-tab="YT뮤직">YT뮤직</button><button class="tab" data-tab="롱믹스">롱믹스</button><button class="tab" data-tab="히스토리">히스토리</button></div>
 <main id="main"></main>
 <div id="player" style="display:none"><div style="flex:1;min-width:0"><div style="font-size:11px;color:var(--dim)">재생 중</div><div id="pname" style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600"></div></div><audio id="audio" controls style="height:32px;width:200px"></audio><button id="pclose" style="width:32px;height:32px;color:var(--dim)">✕</button></div>
-<div id="settings"><div class="bg"></div><div class="box"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px"><b style="font-size:16px">설정</b><button id="sclose" style="width:32px;height:32px;border-radius:50%;background:var(--bg);color:var(--dim);border:1px solid var(--card-border)">✕</button></div><div style="display:flex;justify-content:space-between;align-items:center;padding:14px;border:1px solid var(--card-border);border-radius:12px;background:var(--bg);margin-bottom:12px"><span style="font-size:13px;font-weight:700" id="themeLabel">🌙 다크 모드</span><button id="themeToggle" style="background:var(--yellow);color:#000;padding:0 14px;height:36px;border-radius:20px;font-size:12px;font-weight:800">라이트로</button></div><div style="font-size:11px;color:var(--dim2);line-height:1.6">v21: PWA 노치 대응 - 헤더가 상태바에 안 가리게 수정</div></div></div>
+<div id="settings"><div class="bg"></div><div class="box"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px"><b style="font-size:16px">설정</b><button id="sclose" style="width:32px;height:32px;border-radius:50%;background:var(--bg);color:var(--dim);border:1px solid var(--card-border)">✕</button></div><div style="display:flex;justify-content:space-between;align-items:center;padding:14px;border:1px solid var(--card-border);border-radius:12px;background:var(--bg);margin-bottom:12px"><span style="font-size:13px;font-weight:700" id="themeLabel">🌙 다크 모드</span><button id="themeToggle" style="background:var(--yellow);color:#000;padding:0 14px;height:36px;border-radius:20px;font-size:12px;font-weight:800">라이트로</button></div></div></div>
 </div>
 <script>
-const PRESETS=[{id:'1',emoji:'🔥',label:'20대 팝송',query:'20대 인기 팝송 모음'},{id:'2',emoji:'📻',label:'4050 가요',query:'4050 추억의 가요 메들리'},{id:'3',emoji:'🎤',label:'트로트',query:'7080 트로트 메들리'},{id:'4',emoji:'🌧️',label:'비오는날',query:'비오는날 잔잔한 발라드'},{id:'5',emoji:'☕',label:'밤 재즈',query:'밤에 듣기좋은 카페 재즈'},{id:'6',emoji:'🚕',label:'신나는',query:'운전할때 신나는 댄스곡'}];
-const VERSIONS=[{ver:'v21',date:'2026-09-26',title:'PWA 노치 터치 안됨 수정',desc:'• header에 env(safe-area-inset-top) 추가해 주간/야간, 설정 버튼이 노치에 가려지지 않게 수정\n• player에도 safe-area-inset-bottom 추가\n• 버튼 크기 44px로 키워 터치 영역 확보'}];
-let presets=PRESETS;let theme=localStorage.getItem('taxi-theme')||'dark';let tab='보관함';let files=[];let playing=null;let playingUrl=null;
-function applyTheme(t){theme=t;localStorage.setItem('taxi-theme',t);document.documentElement.setAttribute('data-theme',t);document.getElementById('themeBtn').textContent=t==='dark'?'☀️':'🌙';document.getElementById('themeLabel').textContent=t==='dark'?'🌙 다크 모드':'☀️ 라이트 모드';document.getElementById('themeToggle').textContent=t==='dark'?'라이트로':'다크로';}
-function openDB(){return new Promise((res,rej)=>{const r=indexedDB.open('taxi-dj',1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains('files'))r.result.createObjectStore('files',{keyPath:'id',autoIncrement:true})};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});}
-async function loadFiles(){const d=await openDB();const tx=d.transaction('files','readonly');const req=tx.objectStore('files').getAll();req.onsuccess=()=>{files=req.result;render();};}
-async function addFiles(list){const d=await openDB();const tx=d.transaction('files','readwrite');const st=tx.objectStore('files');for(const f of list){if(!f.type.startsWith('audio/'))continue;st.add({name:f.name,blob:f});}tx.oncomplete=()=>loadFiles();}
-async function delFile(id){const d=await openDB();const tx=d.transaction('files','readwrite');tx.objectStore('files').delete(id);tx.oncomplete=()=>loadFiles();}
-function playFile(f){if(playingUrl)URL.revokeObjectURL(playingUrl);playingUrl=URL.createObjectURL(f.blob);playing=f;document.getElementById('pname').textContent=f.name;document.getElementById('player').style.display='flex';const a=document.getElementById('audio');a.src=playingUrl;a.play().catch(()=>{});render();}
-function stop(){document.getElementById('audio').pause();if(playingUrl)URL.revokeObjectURL(playingUrl);playingUrl=null;playing=null;document.getElementById('player').style.display='none';render();}
-function openUniversal(u){const a=document.createElement('a');a.href=u;a.target='_blank';a.rel='noopener';a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.click();setTimeout(()=>a.remove(),500);}
-function openLibrary(){openUniversal('https://www.youtube.com/feed/library');}
-function openYTM(q){openUniversal('https://music.youtube.com/search?q='+encodeURIComponent(q));}
-function openLong(q){openUniversal('https://www.youtube.com/results?search_query='+encodeURIComponent(q+' 10시간'));}
-function render(){
-const main=document.getElementById('main');
-if(tab==='보관함'){
-main.innerHTML=`<button class="btn-offline" id="btnLib"><span style="font-weight:700;font-size:15px">유튜브 보관함 열기</span><span style="color:var(--yellow);font-weight:800;font-size:14px">앱에서 열기 →</span></button><button class="btn-add" id="btnAdd">+ 파일 추가</button><input id="finput" type="file" accept="audio/*" multiple style="display:none">${files.length===0?`<div style="padding:40px 0;text-align:center;color:var(--dim2);font-size:13px">보관함 버튼은 사진 속 화면까지만 열림</div>`:`<div style="margin-top:12px">${files.map(f=>`<div class="file"><button data-play="${f.id}" style="width:32px;height:32px;border-radius:50%;background:${playing&&playing.id===f.id?'var(--yellow)':'var(--card-border)'}">${playing&&playing.id===f.id?'■':'▶'}</button><div style="flex:1;min-width:0;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${f.name}</div><button data-del="${f.id}">✕</button></div>`).join('')}</div>`}`;
-document.getElementById('btnLib').onclick=openLibrary;
-document.getElementById('btnAdd').onclick=()=>document.getElementById('finput').click();
-document.getElementById('finput').onchange=e=>{if(e.target.files)addFiles(e.target.files);e.target.value='';};
-main.querySelectorAll('[data-play]').forEach(b=>b.onclick=()=>{const f=files.find(x=>x.id==b.dataset.play);if(playing&&playing.id==f.id)stop();else playFile(f);});
-main.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>delFile(Number(b.dataset.del)));
-}else if(tab==='YT뮤직'){
-main.innerHTML=`<div class="grid2">${presets.map(p=>`<button class="preset" data-ytm="${p.id}"><span style="font-size:28px">${p.emoji}</span><b>${p.label}</b></button>`).join('')}</div>`;
-main.querySelectorAll('[data-ytm]').forEach(b=>b.onclick=()=>{const p=presets.find(x=>x.id==b.dataset.ytm);openYTM(p.query);});
-}else if(tab==='롱믹스'){
-main.innerHTML=`<div class="grid2">${presets.map(p=>`<button class="preset" data-long="${p.id}"><span style="font-size:28px">${p.emoji}</span><div><b>${p.label}</b><div style="font-size:11px;color:var(--dim)">롱믹스</div></div></button>`).join('')}</div>`;
-main.querySelectorAll('[data-long]').forEach(b=>b.onclick=()=>{const p=presets.find(x=>x.id==b.dataset.long);openLong(p.query);});
-}else if(tab==='히스토리'){
-main.innerHTML=VERSIONS.map(v=>`<div class="vhist now"><b style="color:var(--yellow)">${v.ver}</b> ${v.date}<div style="font-weight:700;margin-top:4px">${v.title}</div><p>${v.desc}</p></div>`).join('');
-}
-}
-document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));t.classList.add('on');tab=t.dataset.tab;render();});
-document.getElementById('gear').onclick=()=>document.getElementById('settings').classList.add('on');
-document.getElementById('themeBtn').onclick=()=>applyTheme(theme==='dark'?'light':'dark');
-document.getElementById('themeToggle').onclick=()=>applyTheme(theme==='dark'?'light':'dark');
-document.getElementById('sclose').onclick=()=>document.getElementById('settings').classList.remove('on');
-document.querySelector('#settings .bg').onclick=()=>document.getElementById('settings').classList.remove('on');
-document.getElementById('pclose').onclick=stop;
-applyTheme(theme);loadFiles();render();
-</script>
-</body>
-</html>
+const PRESETS=[
+{id:'1',emoji:'🔥',label:'20대 팝송',query:'20대 인기 팝송 모음'},
+{id:'2',emoji:'📻',label:'4050 가요',query:'4050 추억의 가요 메들리'},
+{id:'3',emoji:'🎤',label:'트로트',query:'7080 트로트 메들리'},
+{id:'4',emoji:'🌧️',label:'비오는날',query:'비오는날 잔잔한 발라드'},
+{id:'5',emoji:'☕',label:'밤 재즈',query:'밤에 듣기좋은 카페 재즈'},
+{id:'6',emoji:'🚕',label:'신나는',query:'운전할때 신나는 댄스곡'},
+];
+const VERSIONS=[
+{ver:'v22',date:'2026-09-26',title:'히스토리 전체 누적',desc:'• v1부터 v22까지 전체 버전 히스토리 보이게 수정\n• 이전 업데이트가 사라지던 문제 해결'},
+{ver:'v21',date:'2026-09-26',title:'PWA 노치 터치 안됨 수정',desc:'• header에 env(safe-area-inset-top) 적용\n• 주간/야간, 설정 버튼 터치 영역 44px 확대\n• player에 safe-area-inset-bottom 추가'},
+{ver:'v20',date:'2026-09-26',title:'아이콘 고정 + 보관함 사진까지만',desc:'• apple-touch-icon.png 상대경로 ./ 로 고정\n• manifest.json 아이콘 180/192/512 명시\n• 보관함 -> https://www.youtube.com/feed/library (사진 속 화면까지만)\n• youtube:// 스킴 제거로 팝업 0개'},
+{ver:'v19',date:'2026-09-26',title:'팝업 제거 시도',desc:'• a태그 + https 유니버설 링크 방식\n• manifest Blob 자동생성 실험'},
+{ver:'v17',date:'2026-09-26',title:'버튼 크기 원복 + 주간/야간',desc:'• YT뮤직 pill 제거, 108px 카드 복원\n• 히스토리 탭을 버전 히스토리 텍스트로 변경\n• 다크/라이트 토글 추가'},
+{ver:'v13',date:'2026-09-25',title:'디자인 규격 확정 - 기준 버전',desc:'• 헤더 64px, 탭 48px\n• 프리셋 카드 108px, 오프라인 버튼 72px\n• 파일 52px, 간격 12px, 라운드 16px\n• TAXI DJ 최종 디자인'},
+{ver:'v10',date:'2026-09-25',title:'롱믹스 탭 추가',desc:'• 10시간 롱믹스 검색\n• YT뮤직 / 롱
