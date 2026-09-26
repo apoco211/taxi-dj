@@ -6,41 +6,70 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="TAXI DJ">
 <meta name="theme-color" content="#ffcc00">
-<link rel="manifest" href="./manifest.json?v=13">
-<link rel="apple-touch-icon" href="./apple-touch-icon.png?v=13">
-<link rel="icon" href="./icons/icon-192.png?v=13">
-<title>TAXI DJ v13</title>
+<!-- manifest.json 파일 없어도 되게 링크는 비워둠, 아래 스크립트가 동적 생성 -->
+<link id="manifest-link" rel="manifest" href="data:application/json,[STRIPPED]>
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<title>TAXI DJ v17 - No Manifest Needed</title>
+<script>
+// 매니페스트를 JS로 자동 생성 - 외부 manifest.json 수정 불필요
+(function(){
+  try{
+    const m = {
+      name:"TAXI DJ", short_name:"TAXI DJ",
+      description:"택시 전용 DJ - YT뮤직, 롱믹스, 오프라인 보관함",
+      start_url: location.pathname + location.search, // 현재 경로 그대로 = 404 방지
+      scope: "./",
+      display:"standalone",
+      display_override:["standalone","minimal-ui"],
+      background_color:"#121212", theme_color:"#ffcc00",
+      orientation:"portrait",
+      icons:[
+        {src:"./apple-touch-icon.png", sizes:"180x180", type:"image/png", purpose:"any"},
+        {src:"./apple-touch-icon.png", sizes:"192x192", type:"image/png", purpose:"any maskable"},
+        {src:"./apple-touch-icon.png", sizes:"512x512", type:"image/png", purpose:"any maskable"}
+      ]
+    };
+    const blob = new Blob([JSON.stringify(m)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    document.getElementById('manifest-link').href = url;
+  }catch(e){}
+})();
+</script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800&family=Noto+Sans+KR:wght@500;700&display=swap');
-*{font-family:'Inter','Noto Sans KR',system-ui,-apple-system,sans-serif;box-sizing:border-box;margin:0;padding:0}
-body{background:#121212;color:#fff;min-height:100vh}
+:root{--bg:#121212;--card:#1e1e1e;--card-border:#2a2a2a;--text:#fff;--dim:#999;--dim2:#666;--yellow:#ffcc00;--input:#121212}
+[data-theme="light"]{--bg:#F5F5F5;--card:#FFF;--card-border:#E8E8E8;--text:#111;--dim:#888;--dim2:#AAA;--input:#F5F5F5}
+*{font-family:'Inter','Noto Sans KR',system-ui,sans-serif;box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);min-height:100vh;transition:.2s}
 button{border:none;background:none;cursor:pointer;font:inherit}
-#app{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;position:relative}
-header{height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;background:#121212;z-index:20}
-header b{font-size:20px;font-weight:800;letter-spacing:-0.02em}
-#gear{width:40px;height:40px;border-radius:50%;background:#1e1e1e;border:1px solid #2a2a2a;display:flex;align-items:center;justify-content:center;color:#aaa}
-#tabs{display:flex;border-bottom:1px solid #2a2a2a;background:#121212}
-.tab{flex:1;height:48px;font-size:13px;color:#999;font-weight:700}
-.tab.on{color:#ffcc00;border-bottom:2px solid #ffcc00}
+#app{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
+header{height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;background:var(--bg);z-index:20;border-bottom:1px solid var(--card-border)}
+header b{font-size:20px;font-weight:800}
+#hbtns{display:flex;gap:8px}
+.iconbtn{width:40px;height:40px;border-radius:50%;background:var(--card);border:1px solid var(--card-border);display:flex;align-items:center;justify-content:center;color:var(--dim);font-size:18px}
+#tabs{display:flex;border-bottom:1px solid var(--card-border);background:var(--bg)}
+.tab{flex:1;height:48px;font-size:13px;color:var(--dim);font-weight:700}
+.tab.on{color:var(--text);border-bottom:2px solid var(--yellow)}
 main{flex:1;padding:16px 16px 120px}
-.btn-offline{width:100%;height:72px;background:#1e1e1e;border:2px solid #ffcc00;border-radius:14px;display:flex;align-items:center;justify-content:space-between;padding:0 20px}
-.btn-add{width:100%;height:56px;border:1px dashed #3a3a3a;border-radius:14px;color:#999;font-size:14px;margin-top:12px}
-.file{height:52px;background:#1e1e1e;border-radius:12px;display:flex;align-items:center;padding:0 12px;gap:12px;margin-top:8px}
+.btn-offline{width:100%;height:72px;background:var(--card);border:2px solid var(--yellow);border-radius:14px;display:flex;align-items:center;justify-content:space-between;padding:0 20px}
+.btn-add{width:100%;height:56px;border:1px dashed var(--card-border);border-radius:14px;color:var(--dim);font-size:14px;margin-top:12px;background:var(--card)}
+.file{height:52px;background:var(--card);border:1px solid var(--card-border);border-radius:12px;display:flex;align-items:center;padding:0 12px;gap:12px;margin-top:8px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.preset{min-height:108px;background:#1e1e1e;border-radius:16px;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;padding:16px;text-align:left;border:1px solid #2a2a2a}
-#player{position:fixed;bottom:0;left:0;right:0;background:#1e1e1e;border-top:1px solid #2a2a2a;padding:12px 16px;display:flex;gap:12px;align-items:center;z-index:30}
-#player audio{height:32px;width:200px}
+.preset{min-height:108px;background:var(--card);border-radius:16px;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;padding:16px;text-align:left;border:1px solid var(--card-border)}
+.preset b{font-size:14px;font-weight:700}
+#player{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--card-border);padding:12px 16px;display:flex;gap:12px;align-items:center;z-index:30}
 #settings{position:fixed;inset:0;z-index:50;display:none}
 #settings.on{display:flex;align-items:flex-end;justify-content:center}
-#settings .bg{position:absolute;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(2px)}
-#settings .box{position:relative;width:100%;max-width:480px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:20px 20px 0 0;padding:20px;max-height:85vh;overflow:auto}
-.hist{padding:16px;border-radius:14px;margin-bottom:8px;border:1px solid #2a2a2a;background:#1e1e1e}
-.hist.v13{background:#1e1a00;border-color:#ffcc00}
+#settings .bg{position:absolute;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(2px)}
+#settings .box{position:relative;width:100%;max-width:480px;background:var(--card);border:1px solid var(--card-border);border-radius:20px 20px 0 0;padding:20px;max-height:85vh;overflow:auto}
+.vhist{padding:14px;border-radius:12px;margin-bottom:10px;border:1px solid var(--card-border);background:var(--card)}
+.vhist.now{border-color:var(--yellow)}
+.vhist p{font-size:12px;color:var(--dim);margin-top:6px;line-height:1.5;white-space:pre-wrap}
 </style>
 </head>
 <body>
 <div id="app">
-<header><b>TAXI DJ</b><button id="gear">⚙︎</button></header>
+<header><b>TAXI DJ</b><div id="hbtns"><button class="iconbtn" id="themeBtn">🌙</button><button class="iconbtn" id="gear">⚙︎</button></div></header>
 <div id="tabs">
 <button class="tab on" data-tab="보관함">보관함</button>
 <button class="tab" data-tab="YT뮤직">YT뮤직</button>
@@ -48,8 +77,10 @@ main{flex:1;padding:16px 16px 120px}
 <button class="tab" data-tab="히스토리">히스토리</button>
 </div>
 <main id="main"></main>
-<div id="player" style="display:none"><div style="flex:1;min-width:0"><div style="font-size:11px;color:#777">재생 중</div><div id="pname" style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div></div><audio id="audio" controls></audio><button id="pclose" style="width:32px;height:32px;color:#666">✕</button></div>
-<div id="settings"><div class="bg"></div><div class="box"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px"><b>프리셋 편집</b><button id="sclose" style="width:32px;height:32px;border-radius:50%;background:#222;color:#777">✕</button></div><div id="slist"></div><p style="margin-top:16px;font-size:11px;color:#666">모든 열기는 https 유니버설 링크만 사용. 커스텀 스킴 없음. 팝업 없음. 밝은 테마.</p></div></div>
+<div id="player" style="display:none"><div style="flex:1;min-width:0"><div style="font-size:11px;color:var(--dim)">재생 중</div><div id="pname" style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div></div><audio id="audio" controls style="height:32px;width:200px"></audio><button id="pclose" style="width:32px;height:32px;color:var(--dim)">✕</button></div>
+<div id="settings"><div class="bg"></div><div class="box"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px"><b>설정</b><button id="sclose" style="width:32px;height:32px;border-radius:50%;background:var(--bg);color:var(--dim)">✕</button></div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:12px;border:1px solid var(--card-border);border-radius:12px;background:var(--bg);margin-bottom:12px"><span style="font-size:13px;font-weight:700" id="themeLabel">🌙 다크 모드</span><button id="themeToggle" style="background:var(--yellow);color:#000;padding:0 14px;height:32px;border-radius:20px;font-size:12px;font-weight:800">라이트로</button></div>
+<div id="slist"></div></div></div>
 </div>
 <script>
 const PRESETS=[
@@ -60,27 +91,31 @@ const PRESETS=[
 {id:'5',emoji:'☕',label:'밤 재즈',query:'밤에 듣기좋은 카페 재즈'},
 {id:'6',emoji:'🚕',label:'신나는',query:'운전할때 신나는 댄스곡'},
 ];
+const VERSIONS=[
+{ver:'v18',date:'2026-09-26',title:'manifest.json 수정 불필요 버전',desc:'• manifest를 JS Blob으로 동적 생성, 외부 파일 없어도 PWA 동작\n• start_url을 location.pathname으로 고정해 홈버튼 404 원천 차단'},
+{ver:'v17',date:'2026-09-26',title:'버튼 크기 원복 + 주간/야간 토글 + 다이렉트 앱 오픈',desc:'• YT뮤직 108px 카드 복원\n• youtube:// , youtubemusic:// 다이렉트\n• 히스토리 = 버전 히스토리 텍스트'},
+];
 let presets=JSON.parse(localStorage.getItem('taxi-presets')||'null')||PRESETS;
+let theme=localStorage.getItem('taxi-theme')||'dark';
 let tab='보관함';let files=[];let playing=null;let playingUrl=null;
+function applyTheme(t){theme=t;localStorage.setItem('taxi-theme',t);document.documentElement.setAttribute('data-theme',t);document.getElementById('themeBtn').textContent=t==='dark'?'☀️':'🌙';document.getElementById('themeLabel').textContent=t==='dark'?'🌙 다크 모드':'☀️ 라이트 모드';document.getElementById('themeToggle').textContent=t==='dark'?'라이트로':'다크로';}
 function openDB(){return new Promise((res,rej)=>{const r=indexedDB.open('taxi-dj',1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains('files')) r.result.createObjectStore('files',{keyPath:'id',autoIncrement:true})};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});}
 async function loadFiles(){const d=await openDB();const tx=d.transaction('files','readonly');const req=tx.objectStore('files').getAll();req.onsuccess=()=>{files=req.result;render();};}
 async function addFiles(list){const d=await openDB();const tx=d.transaction('files','readwrite');const st=tx.objectStore('files');for(const f of list){if(!f.type.startsWith('audio/'))continue; st.add({name:f.name,blob:f});}tx.oncomplete=()=>loadFiles();}
 async function delFile(id){const d=await openDB();const tx=d.transaction('files','readwrite');tx.objectStore('files').delete(id);tx.oncomplete=()=>{if(playing&&playing.id===id){stop();}loadFiles();};}
 function playFile(f){if(playingUrl) URL.revokeObjectURL(playingUrl);playingUrl=URL.createObjectURL(f.blob);playing=f;document.getElementById('pname').textContent=f.name;document.getElementById('player').style.display='flex';const a=document.getElementById('audio');a.src=playingUrl;a.play().catch(()=>{});render();}
 function stop(){const a=document.getElementById('audio');a.pause();if(playingUrl) URL.revokeObjectURL(playingUrl);playingUrl=null;playing=null;document.getElementById('player').style.display='none';render();}
-function openLink(url){const a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();setTimeout(()=>a.remove(),500);}
-function openOffline(){openLink('https://www.youtube.com/feed/library');}
-function openYTM(q){openLink('https://music.youtube.com/search?q='+encodeURIComponent(q));}
-function openLong(q){openLink('https://m.youtube.com/results?search_query='+encodeURIComponent(q+' 10시간'));}
+function openOffline(){location.href='youtube://www.youtube.com/feed/downloads';}
+function openYTM(q){location.href='youtubemusic://search?q='+encodeURIComponent(q);}
+function openLong(q){location.href='youtube://www.youtube.com/results?search_query='+encodeURIComponent(q+' 10시간');}
 function render(){
 const main=document.getElementById('main');
 if(tab==='보관함'){
 main.innerHTML=`
-<button class="btn-offline" id="btnOff"><span style="font-weight:700;font-size:15px">유튜브 오프라인 보관함</span><span style="color:#ffcc00;font-weight:700;font-size:14px">열기</span></button>
+<button class="btn-offline" id="btnOff"><span style="font-weight:700;font-size:15px">유튜브 오프라인 보관함</span><span style="color:var(--yellow);font-weight:800;font-size:14px">앱에서 열기 →</span></button>
 <button class="btn-add" id="btnAdd">+ 파일 추가</button>
 <input id="finput" type="file" accept="audio/*" multiple style="display:none">
-${files.length===0?`<div style="padding:40px 0;text-align:center;color:#555;font-size:13px">추가된 파일 없음</div>`:`
-<div style="margin-top:12px">${files.map(f=>`<div class="file"><button data-play="${f.id}" style="width:32px;height:32px;border-radius:50%;background:${playing&&playing.id===f.id?'#ffcc00':'#2a2a2a'};color:${playing&&playing.id===f.id?'#000':'#fff'}">${playing&&playing.id===f.id?'■':'▶'}</button><div style="flex:1;min-width:0;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${f.name}</div><button data-del="${f.id}" style="color:#666">✕</button></div>`).join('')}</div>`}
+${files.length===0?`<div style="padding:40px 0;text-align:center;color:var(--dim2);font-size:13px">추가된 파일 없음</div>`:`<div style="margin-top:12px">${files.map(f=>`<div class="file"><button data-play="${f.id}" style="width:32px;height:32px;border-radius:50%;background:${playing&&playing.id===f.id?'var(--yellow)':'var(--card-border)'};color:${playing&&playing.id===f.id?'#000':'var(--text)'}">${playing&&playing.id===f.id?'■':'▶'}</button><div style="flex:1;min-width:0;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${f.name}</div><button data-del="${f.id}" style="color:var(--dim)">✕</button></div>`).join('')}</div>`}
 `;
 document.getElementById('btnOff').onclick=openOffline;
 document.getElementById('btnAdd').onclick=()=>document.getElementById('finput').click();
@@ -89,30 +124,25 @@ main.querySelectorAll('[data-play]').forEach(b=>b.onclick=()=>{const f=files.fin
 main.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>delFile(Number(b.dataset.del)));
 }
 else if(tab==='YT뮤직'){
-main.innerHTML=`<div class="grid2">${presets.map(p=>`<button class="preset" data-ytm="${p.id}"><span style="font-size:28px">${p.emoji}</span><span style="font-weight:700;font-size:14px">${p.label}</span></button>`).join('')}</div>`;
+main.innerHTML=`<div class="grid2">${presets.map(p=>`<button class="preset" data-ytm="${p.id}"><span style="font-size:28px">${p.emoji}</span><b>${p.label}</b></button>`).join('')}</div>`;
 main.querySelectorAll('[data-ytm]').forEach(b=>b.onclick=()=>{const p=presets.find(x=>x.id==b.dataset.ytm);openYTM(p.query);});
 }
 else if(tab==='롱믹스'){
-main.innerHTML=`<div class="grid2">${presets.map(p=>`<button class="preset" data-long="${p.id}"><span style="font-size:28px">${p.emoji}</span><div><div style="font-weight:700;font-size:14px">${p.label}</div><div style="font-size:11px;color:#888">롱믹스</div></div></button>`).join('')}</div>`;
+main.innerHTML=`<div class="grid2">${presets.map(p=>`<button class="preset" data-long="${p.id}"><span style="font-size:28px">${p.emoji}</span><div><b>${p.label}</b><div style="font-size:11px;color:var(--dim)">롱믹스</div></div></button>`).join('')}</div>`;
 main.querySelectorAll('[data-long]').forEach(b=>b.onclick=()=>{const p=presets.find(x=>x.id==b.dataset.long);openLong(p.query);});
 }
 else if(tab==='히스토리'){
-const hist=[{v:'v13',title:'팝업 없이 앱으로 열기 최종 + 밝은 테마',desc:'https 유니버설 링크만 사용, <a> 클릭 트릭으로 YT뮤직 앱 직접 열기, 배경 #121212로 밝게',date:'2026-09-26'}];
-main.innerHTML=hist.map(h=>`<div class="hist v13"><div style="display:flex;justify-content:space-between"><b style="font-size:12px;color:#ffcc00">${h.v}</b><span style="font-size:11px;color:#666">${h.date}</span></div><div style="margin-top:4px;font-weight:700;font-size:14px">${h.title}</div><div style="margin-top:4px;font-size:12px;color:#999">${h.desc}</div></div>`).join('');
+main.innerHTML=VERSIONS.map(v=>`<div class="vhist ${v.ver==='v18'?'now':''}"><div style="display:flex;justify-content:space-between"><b style="color:var(--yellow)">${v.ver}</b><span style="font-size:11px;color:var(--dim2)">${v.date}</span></div><div style="margin-top:4px;font-weight:700;font-size:13px">${v.title}</div><p>${v.desc}</p></div>`).join('');
 }
 }
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));t.classList.add('on');tab=t.dataset.tab;render();});
-document.getElementById('gear').onclick=()=>{document.getElementById('settings').classList.add('on');renderSettings();};
+document.getElementById('gear').onclick=()=>document.getElementById('settings').classList.add('on');
+document.getElementById('themeBtn').onclick=()=>applyTheme(theme==='dark'?'light':'dark');
+document.getElementById('themeToggle').onclick=()=>applyTheme(theme==='dark'?'light':'dark');
 document.getElementById('sclose').onclick=()=>document.getElementById('settings').classList.remove('on');
 document.querySelector('#settings .bg').onclick=()=>document.getElementById('settings').classList.remove('on');
 document.getElementById('pclose').onclick=stop;
-function renderSettings(){
-const sl=document.getElementById('slist');
-sl.innerHTML=presets.map(p=>`<div style="background:#1e1e1e;border-radius:12px;padding:12px;display:flex;gap:8px;margin-bottom:8px"><span style="font-size:20px;width:28px;text-align:center">${p.emoji}</span><div style="flex:1;display:flex;flex-direction:column;gap:8px"><input data-label="${p.id}" value="${p.label}" style="height:36px;background:#121212;border:1px solid #2a2a2a;border-radius:8px;padding:0 12px;color:#fff;font-size:13px"><input data-query="${p.id}" value="${p.query}" style="height:36px;background:#121212;border:1px solid #2a2a2a;border-radius:8px;padding:0 12px;color:#aaa;font-size:13px"></div></div>`).join('');
-sl.querySelectorAll('[data-label]').forEach(i=>i.oninput=e=>{presets=presets.map(x=>x.id==e.target.dataset.label?{...x,label:e.target.value}:x);localStorage.setItem('taxi-presets',JSON.stringify(presets));render();});
-sl.querySelectorAll('[data-query]').forEach(i=>i.oninput=e=>{presets=presets.map(x=>x.id==e.target.dataset.query?{...x,query:e.target.value}:x);localStorage.setItem('taxi-presets',JSON.stringify(presets));});
-}
-loadFiles();render();
+applyTheme(theme);loadFiles();render();
 </script>
 </body>
 </html>
