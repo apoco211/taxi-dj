@@ -6,39 +6,28 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="TAXI DJ">
 <meta name="theme-color" content="#ffcc00">
-<!-- manifest.json 파일 없어도 되게 링크는 비워둠, 아래 스크립트가 동적 생성 -->
 <link id="manifest-link" rel="manifest" href="data:application/json,[STRIPPED]>
 <link rel="apple-touch-icon" href="./apple-touch-icon.png">
-<title>TAXI DJ v17 - No Manifest Needed</title>
+<title>TAXI DJ v19</title>
 <script>
-// 매니페스트를 JS로 자동 생성 - 외부 manifest.json 수정 불필요
 (function(){
   try{
-    const m = {
+    const m={
       name:"TAXI DJ", short_name:"TAXI DJ",
-      description:"택시 전용 DJ - YT뮤직, 롱믹스, 오프라인 보관함",
-      start_url: location.pathname + location.search, // 현재 경로 그대로 = 404 방지
-      scope: "./",
-      display:"standalone",
-      display_override:["standalone","minimal-ui"],
+      start_url: location.pathname + location.search,
+      scope:"./", display:"standalone",
       background_color:"#121212", theme_color:"#ffcc00",
-      orientation:"portrait",
-      icons:[
-        {src:"./apple-touch-icon.png", sizes:"180x180", type:"image/png", purpose:"any"},
-        {src:"./apple-touch-icon.png", sizes:"192x192", type:"image/png", purpose:"any maskable"},
-        {src:"./apple-touch-icon.png", sizes:"512x512", type:"image/png", purpose:"any maskable"}
-      ]
+      icons:[{src:"./apple-touch-icon.png", sizes:"180x180", type:"image/png"}]
     };
-    const blob = new Blob([JSON.stringify(m)], {type:'application/json'});
-    const url = URL.createObjectURL(blob);
-    document.getElementById('manifest-link').href = url;
+    const url=URL.createObjectURL(new Blob([JSON.stringify(m)],{type:'application/json'}));
+    document.getElementById('manifest-link').href=url;
   }catch(e){}
 })();
 </script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800&family=Noto+Sans+KR:wght@500;700&display=swap');
-:root{--bg:#121212;--card:#1e1e1e;--card-border:#2a2a2a;--text:#fff;--dim:#999;--dim2:#666;--yellow:#ffcc00;--input:#121212}
-[data-theme="light"]{--bg:#F5F5F5;--card:#FFF;--card-border:#E8E8E8;--text:#111;--dim:#888;--dim2:#AAA;--input:#F5F5F5}
+:root{--bg:#121212;--card:#1e1e1e;--card-border:#2a2a2a;--text:#fff;--dim:#999;--dim2:#666;--yellow:#ffcc00}
+[data-theme="light"]{--bg:#F5F5F5;--card:#FFFFFF;--card-border:#E8E8E8;--text:#111;--dim:#888;--dim2:#AAA}
 *{font-family:'Inter','Noto Sans KR',system-ui,sans-serif;box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);min-height:100vh;transition:.2s}
 button{border:none;background:none;cursor:pointer;font:inherit}
@@ -92,8 +81,8 @@ const PRESETS=[
 {id:'6',emoji:'🚕',label:'신나는',query:'운전할때 신나는 댄스곡'},
 ];
 const VERSIONS=[
-{ver:'v18',date:'2026-09-26',title:'manifest.json 수정 불필요 버전',desc:'• manifest를 JS Blob으로 동적 생성, 외부 파일 없어도 PWA 동작\n• start_url을 location.pathname으로 고정해 홈버튼 404 원천 차단'},
-{ver:'v17',date:'2026-09-26',title:'버튼 크기 원복 + 주간/야간 토글 + 다이렉트 앱 오픈',desc:'• YT뮤직 108px 카드 복원\n• youtube:// , youtubemusic:// 다이렉트\n• 히스토리 = 버전 히스토리 텍스트'},
+{ver:'v19',date:'2026-09-26',title:'팝업 0개 + 보관함 바로 열기 + manifest 자동생성',desc:'• youtube:// 스킴 제거 (유효하지 않은 주소 팝업 원인)\n• a태그 + https://www.youtube.com/feed/downloads 유니버설 링크로 변경 -> 앱 있으면 오프라인 보관함으로 바로, 팝업 없음\n• YT뮤직도 https://music.youtube.com/search?q= 유니버설 링크로 팝업 없음\n• manifest.json 파일을 JS Blob으로 자동 생성, start_url=현재주소라 404 원천 차단\n• 버튼 크기 108px 카드 유지, 주간/야간 토글 유지, 히스토리=버전 히스토리 텍스트'},
+{ver:'v17',date:'2026-09-26',title:'버튼 크기 원복 + 주간/야간',desc:'• YT뮤직 pill 제거 108px 복원\n• 히스토리 텍스트로 변경'},
 ];
 let presets=JSON.parse(localStorage.getItem('taxi-presets')||'null')||PRESETS;
 let theme=localStorage.getItem('taxi-theme')||'dark';
@@ -105,9 +94,17 @@ async function addFiles(list){const d=await openDB();const tx=d.transaction('fil
 async function delFile(id){const d=await openDB();const tx=d.transaction('files','readwrite');tx.objectStore('files').delete(id);tx.oncomplete=()=>{if(playing&&playing.id===id){stop();}loadFiles();};}
 function playFile(f){if(playingUrl) URL.revokeObjectURL(playingUrl);playingUrl=URL.createObjectURL(f.blob);playing=f;document.getElementById('pname').textContent=f.name;document.getElementById('player').style.display='flex';const a=document.getElementById('audio');a.src=playingUrl;a.play().catch(()=>{});render();}
 function stop(){const a=document.getElementById('audio');a.pause();if(playingUrl) URL.revokeObjectURL(playingUrl);playingUrl=null;playing=null;document.getElementById('player').style.display='none';render();}
-function openOffline(){location.href='youtube://www.youtube.com/feed/downloads';}
-function openYTM(q){location.href='youtubemusic://search?q='+encodeURIComponent(q);}
-function openLong(q){location.href='youtube://www.youtube.com/results?search_query='+encodeURIComponent(q+' 10시간');}
+function openUniversal(url){
+  const a=document.createElement('a');
+  a.href=url; a.target='_blank'; a.rel='noopener';
+  a.style.position='fixed'; a.style.opacity='0'; a.style.pointerEvents='none';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(()=>a.remove(),500);
+}
+function openOffline(){ openUniversal('https://www.youtube.com/feed/downloads'); }
+function openYTM(q){ openUniversal('https://music.youtube.com/search?q='+encodeURIComponent(q)); }
+function openLong(q){ openUniversal('https://www.youtube.com/results?search_query='+encodeURIComponent(q+' 10시간')); }
 function render(){
 const main=document.getElementById('main');
 if(tab==='보관함'){
@@ -132,7 +129,7 @@ main.innerHTML=`<div class="grid2">${presets.map(p=>`<button class="preset" data
 main.querySelectorAll('[data-long]').forEach(b=>b.onclick=()=>{const p=presets.find(x=>x.id==b.dataset.long);openLong(p.query);});
 }
 else if(tab==='히스토리'){
-main.innerHTML=VERSIONS.map(v=>`<div class="vhist ${v.ver==='v18'?'now':''}"><div style="display:flex;justify-content:space-between"><b style="color:var(--yellow)">${v.ver}</b><span style="font-size:11px;color:var(--dim2)">${v.date}</span></div><div style="margin-top:4px;font-weight:700;font-size:13px">${v.title}</div><p>${v.desc}</p></div>`).join('');
+main.innerHTML=VERSIONS.map(v=>`<div class="vhist ${v.ver==='v19'?'now':''}"><div style="display:flex;justify-content:space-between"><b style="color:var(--yellow)">${v.ver}</b><span style="font-size:11px;color:var(--dim2)">${v.date}</span></div><div style="margin-top:4px;font-weight:700;font-size:13px">${v.title}</div><p>${v.desc}</p></div>`).join('');
 }
 }
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));t.classList.add('on');tab=t.dataset.tab;render();});
