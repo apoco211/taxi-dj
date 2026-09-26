@@ -67,4 +67,49 @@ const VERSIONS=[
 {ver:'v19',date:'2026-09-26',title:'팝업 제거 시도',desc:'• a태그 + https 유니버설 링크 방식\n• manifest Blob 자동생성 실험'},
 {ver:'v17',date:'2026-09-26',title:'버튼 크기 원복 + 주간/야간',desc:'• YT뮤직 pill 제거, 108px 카드 복원\n• 히스토리 탭을 버전 히스토리 텍스트로 변경\n• 다크/라이트 토글 추가'},
 {ver:'v13',date:'2026-09-25',title:'디자인 규격 확정 - 기준 버전',desc:'• 헤더 64px, 탭 48px\n• 프리셋 카드 108px, 오프라인 버튼 72px\n• 파일 52px, 간격 12px, 라운드 16px\n• TAXI DJ 최종 디자인'},
-{ver:'v10',date:'2026-09-25',title:'롱믹스 탭 추가',desc:'• 10시간 롱믹스 검색\n• YT뮤직 / 롱
+{ver:'v10',date:'2026-09-25',title:'롱믹스 탭 추가',desc:'• 10시간 롱믹스 검색\n• YT뮤직 / 롱믹스 분리'},
+{ver:'v5',date:'2026-09-24',title:'보관함 + YT뮤직 시작',desc:'• 로컬 mp3 보관함 (IndexedDB)\n• YT뮤직 프리셋 6개\n• 첫 보관함 기능'},
+{ver:'v1',date:'2026-09-23',title:'최초 버전',desc:'• TAXI DJ PWA 프로젝트 시작'},
+];
+let theme=localStorage.getItem('taxi-theme')||'dark';let tab='보관함';let files=[];let playing=null;let playingUrl=null;
+function applyTheme(t){theme=t;localStorage.setItem('taxi-theme',t);document.documentElement.setAttribute('data-theme',t);document.getElementById('themeBtn').textContent=t==='dark'?'☀️':'🌙';document.getElementById('themeLabel').textContent=t==='dark'?'🌙 다크 모드':'☀️ 라이트 모드';document.getElementById('themeToggle').textContent=t==='dark'?'라이트로':'다크로';}
+function openDB(){return new Promise((res,rej)=>{const r=indexedDB.open('taxi-dj',1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains('files'))r.result.createObjectStore('files',{keyPath:'id',autoIncrement:true})};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});}
+async function loadFiles(){const d=await openDB();const tx=d.transaction('files','readonly');const req=tx.objectStore('files').getAll();req.onsuccess=()=>{files=req.result;render();};}
+async function addFiles(list){const d=await openDB();const tx=d.transaction('files','readwrite');const st=tx.objectStore('files');for(const f of list){if(!f.type.startsWith('audio/'))continue;st.add({name:f.name,blob:f});}tx.oncomplete=()=>loadFiles();}
+async function delFile(id){const d=await openDB();const tx=d.transaction('files','readwrite');tx.objectStore('files').delete(id);tx.oncomplete=()=>{if(playing&&playing.id===id)stop();loadFiles();};}
+function playFile(f){if(playingUrl)URL.revokeObjectURL(playingUrl);playingUrl=URL.createObjectURL(f.blob);playing=f;document.getElementById('pname').textContent=f.name;document.getElementById('player').style.display='flex';const a=document.getElementById('audio');a.src=playingUrl;a.play().catch(()=>{});render();}
+function stop(){document.getElementById('audio').pause();if(playingUrl)URL.revokeObjectURL(playingUrl);playingUrl=null;playing=null;document.getElementById('player').style.display='none';render();}
+function openUniversal(u){const a=document.createElement('a');a.href=u;a.target='_blank';a.rel='noopener';a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.click();setTimeout(()=>a.remove(),500);}
+function openLibrary(){openUniversal('https://www.youtube.com/feed/library');}
+function openYTM(q){openUniversal('https://music.youtube.com/search?q='+encodeURIComponent(q));}
+function openLong(q){openUniversal('https://www.youtube.com/results?search_query='+encodeURIComponent(q+' 10시간'));}
+function render(){
+const main=document.getElementById('main');
+if(tab==='보관함'){
+main.innerHTML=`<button class="btn-offline" id="btnLib"><span style="font-weight:700;font-size:15px">유튜브 보관함 열기</span><span style="color:var(--yellow);font-weight:800;font-size:14px">앱에서 열기 →</span></button><button class="btn-add" id="btnAdd">+ 파일 추가</button><input id="finput" type="file" accept="audio/*" multiple style="display:none">${files.length===0?`<div style="padding:40px 0;text-align:center;color:var(--dim2);font-size:13px">보관함 버튼은 사진 속 화면까지만 열림</div>`:`<div style="margin-top:12px">${files.map(f=>`<div class="file"><button data-play="${f.id}" style="width:32px;height:32px;border-radius:50%;background:${playing&&playing.id===f.id?'var(--yellow)':'var(--card-border)'}">${playing&&playing.id===f.id?'■':'▶'}</button><div style="flex:1;min-width:0;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${f.name}</div><button data-del="${f.id}">✕</button></div>`).join('')}</div>`}`;
+document.getElementById('btnLib').onclick=openLibrary;
+document.getElementById('btnAdd').onclick=()=>document.getElementById('finput').click();
+document.getElementById('finput').onchange=e=>{if(e.target.files)addFiles(e.target.files);e.target.value='';};
+main.querySelectorAll('[data-play]').forEach(b=>b.onclick=()=>{const f=files.find(x=>x.id==b.dataset.play);if(playing&&playing.id==f.id)stop();else playFile(f);});
+main.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>delFile(Number(b.dataset.del)));
+}else if(tab==='YT뮤직'){
+main.innerHTML=`<div class="grid2">${PRESETS.map(p=>`<button class="preset" data-ytm="${p.id}"><span style="font-size:28px">${p.emoji}</span><b>${p.label}</b></button>`).join('')}</div>`;
+main.querySelectorAll('[data-ytm]').forEach(b=>b.onclick=()=>{const p=PRESETS.find(x=>x.id==b.dataset.ytm);openYTM(p.query);});
+}else if(tab==='롱믹스'){
+main.innerHTML=`<div class="grid2">${PRESETS.map(p=>`<button class="preset" data-long="${p.id}"><span style="font-size:28px">${p.emoji}</span><div><b>${p.label}</b><div style="font-size:11px;color:var(--dim)">롱믹스</div></div></button>`).join('')}</div>`;
+main.querySelectorAll('[data-long]').forEach(b=>b.onclick=()=>{const p=PRESETS.find(x=>x.id==b.dataset.long);openLong(p.query);});
+}else if(tab==='히스토리'){
+main.innerHTML=VERSIONS.map((v,i)=>`<div class="vhist ${i===0?'now':''}"><div style="display:flex;justify-content:space-between;align-items:center"><b style="color:var(--yellow)">${v.ver}</b><span style="font-size:11px;color:var(--dim2)">${v.date}</span></div><div style="margin-top:4px;font-weight:700;font-size:13px">${v.title}</div><p>${v.desc}</p></div>`).join('');
+}
+}
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));t.classList.add('on');tab=t.dataset.tab;render();});
+document.getElementById('gear').onclick=()=>document.getElementById('settings').classList.add('on');
+document.getElementById('themeBtn').onclick=()=>applyTheme(theme==='dark'?'light':'dark');
+document.getElementById('themeToggle').onclick=()=>applyTheme(theme==='dark'?'light':'dark');
+document.getElementById('sclose').onclick=()=>document.getElementById('settings').classList.remove('on');
+document.querySelector('#settings .bg').onclick=()=>document.getElementById('settings').classList.remove('on');
+document.getElementById('pclose').onclick=stop;
+applyTheme(theme);loadFiles();render();
+</script>
+</body>
+</html>
