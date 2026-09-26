@@ -10,7 +10,7 @@
 <link rel="manifest" href="./manifest.json">
 <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
-<title>TAXI DJ v23 - settings = preset</title>
+<title>TAXI DJ v24 - icon set</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800&family=Noto+Sans+KR:wght@500;700&display=swap');
 :root{--bg:#121212;--card:#1e1e1e;--card-border:#2a2a2a;--text:#fff;--dim:#999;--dim2:#666;--yellow:#ffcc00}
@@ -21,7 +21,6 @@ button{border:none;background:none;cursor:pointer;font:inherit;-webkit-tap-highl
 input{background:var(--bg);border:1px solid var(--card-border);color:var(--text);border-radius:10px;padding:10px 12px;font-size:13px;width:100%}
 #app{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
 header{height:calc(64px + env(safe-area-inset-top));padding-top:env(safe-area-inset-top);padding-left:calc(20px + env(safe-area-inset-left));padding-right:calc(20px + env(safe-area-inset-right));display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg);z-index:20;border-bottom:1px solid var(--card-border)}
-header b{font-size:20px;font-weight:800}
 #hbtns{display:flex;gap:10px;align-items:center}
 .iconbtn{width:44px;height:44px;border-radius:50%;background:var(--card);border:1px solid var(--card-border);display:flex;align-items:center;justify-content:center;color:var(--dim);font-size:18px}
 #tabs{display:flex;border-bottom:1px solid var(--card-border);background:var(--bg);position:sticky;top:calc(64px + env(safe-area-inset-top));z-index:19}
@@ -43,6 +42,15 @@ main{flex:1;padding:16px 16px 120px}
 .vhist{padding:14px;border-radius:12px;margin-bottom:10px;border:1px solid var(--card-border);background:var(--card)}
 .vhist.now{border-color:var(--yellow)}
 .vhist p{font-size:12px;color:var(--dim);margin-top:6px;line-height:1.5;white-space:pre-wrap}
+/* 아이콘 피커 */
+#iconPicker{position:fixed;inset:0;z-index:60;display:none;align-items:flex-end;justify-content:center}
+#iconPicker.on{display:flex}
+#iconPicker .bg{position:absolute;inset:0;background:rgba(0,0,0,.6)}
+#iconPicker .box{position:relative;width:100%;max-width:480px;background:var(--card);border:1px solid var(--card-border);border-radius:20px 20px 0 0;padding:20px;max-height:70vh;overflow:auto}
+.icon-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:12px}
+.icon-opt{height:48px;border-radius:12px;background:var(--bg);border:1px solid var(--card-border);font-size:22px;display:flex;align-items:center;justify-content:center}
+.icon-opt.sel{border-color:var(--yellow);background:rgba(255,204,0,.15)}
+.emoji-btn{width:44px;height:44px;border-radius:10px;background:var(--card);border:1px solid var(--card-border);font-size:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -51,19 +59,29 @@ main{flex:1;padding:16px 16px 120px}
 <div id="tabs"><button class="tab on" data-tab="보관함">보관함</button><button class="tab" data-tab="YT뮤직">YT뮤직</button><button class="tab" data-tab="롱믹스">롱믹스</button><button class="tab" data-tab="히스토리">히스토리</button></div>
 <main id="main"></main>
 <div id="player" style="display:none"><div style="flex:1;min-width:0"><div style="font-size:11px;color:var(--dim)">재생 중</div><div id="pname" style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600"></div></div><audio id="audio" controls style="height:32px;width:200px"></audio><button id="pclose" style="width:32px;height:32px;color:var(--dim)">✕</button></div>
+
 <div id="settings"><div class="bg"></div><div class="box">
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><b style="font-size:16px">설정 - 프리셋 편집</b><button id="sclose" style="width:32px;height:32px;border-radius:50%;background:var(--bg);color:var(--dim);border:1px solid var(--card-border)">✕</button></div>
 <div id="slist"></div>
-<div style="display:flex;gap:8px;margin-top:12px">
-<input id="newEmoji" placeholder="🔥" style="width:50px;text-align:center">
+<div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--card-border)">
+<div style="font-size:12px;font-weight:700;color:var(--dim);margin-bottom:8px">새 프리셋 추가</div>
+<div style="display:flex;gap:8px;align-items:center">
+<button class="emoji-btn" id="newEmojiBtn">🎵</button>
 <input id="newLabel" placeholder="이름 (예: 90년대)">
 <input id="newQuery" placeholder="검색어">
 </div>
+</div>
 <button id="addPreset" style="width:100%;height:44px;background:var(--yellow);color:#000;border-radius:12px;font-weight:800;font-size:13px;margin-top:8px">+ 프리셋 추가</button>
-<div style="font-size:11px;color:var(--dim2);margin-top:12px;line-height:1.5">* 헤더 달/해 버튼이 주간/야간 모드야<br>* 여기는 YT뮤직/롱믹스 버튼 이름 바꾸는 곳</div>
 </div></div>
+
+<div id="iconPicker"><div class="bg"></div><div class="box">
+<div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:14px">아이콘 선택</b><button id="iconClose" style="width:28px;height:28px;border-radius:50%;background:var(--bg);border:1px solid var(--card-border)">✕</button></div>
+<div class="icon-grid" id="iconGrid"></div>
+</div></div>
+
 </div>
 <script>
+const ICONS=['🔥','📻','🎤','🌧️','☕','🚕','🎄','👶','⚽','🎃','🎅','💃','🕺','🎸','🎹','🎷','💕','🌙','⭐','🎧','🎵','🎶','🚗','✈️','🏖️','🍺','🍷','🎂','🎉','💿','📀','🎬','🌈','🌸','❤️','💛'];
 const DEFAULT_PRESETS=[
 {id:'1',emoji:'🔥',label:'20대 팝송',query:'20대 인기 팝송 모음'},
 {id:'2',emoji:'📻',label:'4050 가요',query:'4050 추억의 가요 메들리'},
@@ -73,16 +91,19 @@ const DEFAULT_PRESETS=[
 {id:'6',emoji:'🚕',label:'신나는',query:'운전할때 신나는 댄스곡'},
 ];
 const VERSIONS=[
-{ver:'v23',date:'2026-09-26',title:'설정 = 프리셋 편집으로 원복',desc:'• 설정 안에 라이트/다크 제거\n• 설정 = YT뮤직/롱믹스 프리셋 이름/검색어 편집\n• 주간/야간은 헤더 달 버튼만으로 전환 (PWA 노치 대응 유지)\n• 히스토리 전체 누적 유지'},
-{ver:'v22',date:'2026-09-26',title:'히스토리 전체 누적',desc:'• v1~v22 전체 버전 보이게 수정'},
-{ver:'v21',date:'2026-09-26',title:'PWA 노치 터치 안됨 수정',desc:'• header safe-area-inset-top 적용\n• 터치 영역 44px 확대'},
-{ver:'v20',date:'2026-09-26',title:'아이콘 고정 + 보관함 사진까지만',desc:'• apple-touch-icon 상대경로 고정\n• 보관함 -> feed/library (사진 속 화면)\n• 팝업 0개'},
-{ver:'v13',date:'2026-09-25',title:'디자인 규격 확정',desc:'• 헤더 64px, 탭 48px, 카드 108px, 오프라인 72px'},
-{ver:'v5',date:'2026-09-24',title:'보관함 + YT뮤직 시작',desc:'• 로컬 mp3 보관함\n• 프리셋 6개'},
+{ver:'v24',date:'2026-09-26',title:'아이콘 세트 선택 추가',desc:'• 프리셋 앞에 이모지 36개 세트 선택 가능\n• 설정에서 아이콘 버튼 클릭 -> 아이콘 피커 팝업\n• 새 프리셋 추가 시에도 아이콘 선택'},
+{ver:'v23',date:'2026-09-26',title:'설정 = 프리셋 편집 원복',desc:'• 설정 = 프리셋 편집\n• 주간/야간은 헤더 달 버튼'},
+{ver:'v22',date:'2026-09-26',title:'히스토리 전체 누적',desc:'• v1~v22 전체 보이게'},
+{ver:'v21',date:'2026-09-26',title:'PWA 노치 터치 수정',desc:'• safe-area 적용'},
+{ver:'v20',date:'2026-09-26',title:'아이콘 고정 + 보관함',desc:'• feed/library\n• 팝업 0개'},
+{ver:'v13',date:'2026-09-25',title:'디자인 규격 확정',desc:'• 108px 카드'},
 {ver:'v1',date:'2026-09-23',title:'최초 버전',desc:'• TAXI DJ 시작'},
 ];
 let presets=JSON.parse(localStorage.getItem('taxi-presets')||'null')||DEFAULT_PRESETS;
 let theme=localStorage.getItem('taxi-theme')||'dark';let tab='보관함';let files=[];let playing=null;let playingUrl=null;
+let pickingFor=null; // 'new' or preset id
+let tempNewEmoji='🎵';
+
 function savePresets(){localStorage.setItem('taxi-presets',JSON.stringify(presets));render();renderSettings();}
 function applyTheme(t){theme=t;localStorage.setItem('taxi-theme',t);document.documentElement.setAttribute('data-theme',t);document.getElementById('themeBtn').textContent=t==='dark'?'🌙':'☀️';}
 function openDB(){return new Promise((res,rej)=>{const r=indexedDB.open('taxi-dj',1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains('files'))r.result.createObjectStore('files',{keyPath:'id',autoIncrement:true})};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});}
@@ -111,30 +132,63 @@ main.querySelectorAll('[data-ytm]').forEach(b=>b.onclick=()=>{const p=presets.fi
 main.innerHTML=`<div class="grid2">${presets.map(p=>`<button class="preset" data-long="${p.id}"><span style="font-size:28px">${p.emoji}</span><div><b>${p.label}</b><div style="font-size:11px;color:var(--dim)">롱믹스</div></div></button>`).join('')}</div>`;
 main.querySelectorAll('[data-long]').forEach(b=>b.onclick=()=>{const p=presets.find(x=>x.id==b.dataset.long);openLong(p.query);});
 }else if(tab==='히스토리'){
-main.innerHTML=VERSIONS.map((v,i)=>`<div class="vhist ${i===0?'now':''}"><div style="display:flex;justify-content:space-between;align-items:center"><b style="color:var(--yellow)">${v.ver}</b><span style="font-size:11px;color:var(--dim2)">${v.date}</span></div><div style="margin-top:4px;font-weight:700;font-size:13px">${v.title}</div><p>${v.desc}</p></div>`).join('');
+main.innerHTML=VERSIONS.map((v,i)=>`<div class="vhist ${i===0?'now':''}"><div style="display:flex;justify-content:space-between"><b style="color:var(--yellow)">${v.ver}</b><span style="font-size:11px;color:var(--dim2)">${v.date}</span></div><div style="margin-top:4px;font-weight:700;font-size:13px">${v.title}</div><p>${v.desc}</p></div>`).join('');
 }
 }
 function renderSettings(){
 const sl=document.getElementById('slist');
 sl.innerHTML=presets.map(p=>`
 <div class="srow">
-<span style="font-size:18px;width:28px;text-align:center">${p.emoji}</span>
+<button class="emoji-btn" data-emoji="${p.id}" style="font-size:20px">${p.emoji}</button>
 <input data-id="${p.id}" data-k="label" value="${p.label}" style="flex:1">
 <input data-id="${p.id}" data-k="query" value="${p.query}" style="flex:2">
 <button data-delp="${p.id}" style="color:#ff5555;font-size:12px">삭제</button>
 </div>`).join('');
 sl.querySelectorAll('input[data-id]').forEach(inp=>{inp.onchange=()=>{const pr=presets.find(x=>x.id==inp.dataset.id);pr[inp.dataset.k]=inp.value;savePresets();}});
 sl.querySelectorAll('[data-delp]').forEach(b=>{b.onclick=()=>{presets=presets.filter(x=>x.id!=b.dataset.delp);savePresets();}});
+sl.querySelectorAll('[data-emoji]').forEach(b=>{
+ b.onclick=()=>{
+  pickingFor=b.dataset.emoji;
+  document.getElementById('iconPicker').classList.add('on');
+  buildIconGrid();
+ }
+});
+document.getElementById('newEmojiBtn').textContent=tempNewEmoji;
 }
+function buildIconGrid(){
+ const grid=document.getElementById('iconGrid');
+ grid.innerHTML=ICONS.map(ic=>`<button class="icon-opt" data-ic="${ic}">${ic}</button>`).join('');
+ grid.querySelectorAll('[data-ic]').forEach(btn=>{
+  btn.onclick=()=>{
+   if(pickingFor==='new'){
+     tempNewEmoji=btn.dataset.ic;
+     document.getElementById('newEmojiBtn').textContent=tempNewEmoji;
+   } else {
+     const pr=presets.find(x=>x.id==pickingFor);
+     if(pr){pr.emoji=btn.dataset.ic; savePresets();}
+   }
+   document.getElementById('iconPicker').classList.remove('on');
+  };
+ });
+}
+
+document.getElementById('newEmojiBtn').onclick=()=>{
+ pickingFor='new';
+ document.getElementById('iconPicker').classList.add('on');
+ buildIconGrid();
+};
 document.getElementById('addPreset').onclick=()=>{
-const e=document.getElementById('newEmoji').value||'🎵';
 const l=document.getElementById('newLabel').value;
 const q=document.getElementById('newQuery').value;
 if(!l||!q) return alert('이름과 검색어 입력');
-presets.push({id:Date.now().toString(),emoji:e,label:l,query:q});
-document.getElementById('newEmoji').value='';document.getElementById('newLabel').value='';document.getElementById('newQuery').value='';
+presets.push({id:Date.now().toString(),emoji:tempNewEmoji,label:l,query:q});
+document.getElementById('newLabel').value='';document.getElementById('newQuery').value='';
+tempNewEmoji='🎵';
 savePresets();
 };
+document.getElementById('iconClose').onclick=()=>document.getElementById('iconPicker').classList.remove('on');
+document.querySelector('#iconPicker .bg').onclick=()=>document.getElementById('iconPicker').classList.remove('on');
+
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));t.classList.add('on');tab=t.dataset.tab;render();});
 document.getElementById('gear').onclick=()=>{renderSettings();document.getElementById('settings').classList.add('on');};
 document.getElementById('themeBtn').onclick=()=>applyTheme(theme==='dark'?'light':'dark');
