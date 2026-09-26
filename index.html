@@ -2,134 +2,75 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="TAXI DJ">
 <meta name="theme-color" content="#ffcc00">
-<link id="manifest-link" rel="manifest" href="data:application/json,[STRIPPED]>
-<link rel="apple-touch-icon" href="./apple-touch-icon.png">
-<title>TAXI DJ v19</title>
+<link id="manifest-link" rel="manifest" href="">
+<!-- 아이콘 문제 해결: 깃허브 절대 경로 + 180사이즈 명시 -->
+<link rel="apple-touch-icon" sizes="180x180" href="https://ococo211.github.io/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="https://ococo211.github.io/apple-touch-icon.png">
+<title>TAXI DJ v20 - 보관함 사진까지만</title>
 <script>
+// manifest.json 파일 없어도 PWA 동작
 (function(){
-  try{
-    const m={
-      name:"TAXI DJ", short_name:"TAXI DJ",
-      start_url: location.pathname + location.search,
-      scope:"./", display:"standalone",
-      background_color:"#121212", theme_color:"#ffcc00",
-      icons:[{src:"./apple-touch-icon.png", sizes:"180x180", type:"image/png"}]
-    };
-    const url=URL.createObjectURL(new Blob([JSON.stringify(m)],{type:'application/json'}));
-    document.getElementById('manifest-link').href=url;
-  }catch(e){}
+  const m={name:"TAXI DJ", short_name:"TAXI DJ", start_url: location.pathname + location.search, scope:"./", display:"standalone", background_color:"#121212", theme_color:"#ffcc00", icons:[{src:"https://ococo211.github.io/apple-touch-icon.png", sizes:"180x180", type:"image/png"}]};
+  document.getElementById('manifest-link').href=URL.createObjectURL(new Blob([JSON.stringify(m)],{type:'application/json'}));
 })();
 </script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800&family=Noto+Sans+KR:wght@500;700&display=swap');
-:root{--bg:#121212;--card:#1e1e1e;--card-border:#2a2a2a;--text:#fff;--dim:#999;--dim2:#666;--yellow:#ffcc00}
-[data-theme="light"]{--bg:#F5F5F5;--card:#FFFFFF;--card-border:#E8E8E8;--text:#111;--dim:#888;--dim2:#AAA}
-*{font-family:'Inter','Noto Sans KR',system-ui,sans-serif;box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);min-height:100vh;transition:.2s}
+:root{--bg:#121212;--card:#1e1e1e;--border:#2a2a2a;--text:#fff;--dim:#999;--yellow:#ffcc00}
+[data-theme="light"]{--bg:#F5F5F5;--card:#FFF;--border:#E8E8E8;--text:#111;--dim:#888}
+*{font-family:system-ui,sans-serif;box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);min-height:100vh}
 button{border:none;background:none;cursor:pointer;font:inherit}
 #app{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
-header{height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;background:var(--bg);z-index:20;border-bottom:1px solid var(--card-border)}
-header b{font-size:20px;font-weight:800}
-#hbtns{display:flex;gap:8px}
-.iconbtn{width:40px;height:40px;border-radius:50%;background:var(--card);border:1px solid var(--card-border);display:flex;align-items:center;justify-content:center;color:var(--dim);font-size:18px}
-#tabs{display:flex;border-bottom:1px solid var(--card-border);background:var(--bg)}
-.tab{flex:1;height:48px;font-size:13px;color:var(--dim);font-weight:700}
-.tab.on{color:var(--text);border-bottom:2px solid var(--yellow)}
+header{height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--border)}
+.iconbtn{width:40px;height:40px;border-radius:50%;background:var(--card);border:1px solid var(--border);color:var(--dim)}
+#tabs{display:flex;border-bottom:1px solid var(--border)} .tab{flex:1;height:48px;color:var(--dim);font-weight:700} .tab.on{color:var(--text);border-bottom:2px solid var(--yellow)}
 main{flex:1;padding:16px 16px 120px}
 .btn-offline{width:100%;height:72px;background:var(--card);border:2px solid var(--yellow);border-radius:14px;display:flex;align-items:center;justify-content:space-between;padding:0 20px}
-.btn-add{width:100%;height:56px;border:1px dashed var(--card-border);border-radius:14px;color:var(--dim);font-size:14px;margin-top:12px;background:var(--card)}
-.file{height:52px;background:var(--card);border:1px solid var(--card-border);border-radius:12px;display:flex;align-items:center;padding:0 12px;gap:12px;margin-top:8px}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.preset{min-height:108px;background:var(--card);border-radius:16px;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;padding:16px;text-align:left;border:1px solid var(--card-border)}
-.preset b{font-size:14px;font-weight:700}
-#player{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--card-border);padding:12px 16px;display:flex;gap:12px;align-items:center;z-index:30}
-#settings{position:fixed;inset:0;z-index:50;display:none}
-#settings.on{display:flex;align-items:flex-end;justify-content:center}
-#settings .bg{position:absolute;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(2px)}
-#settings .box{position:relative;width:100%;max-width:480px;background:var(--card);border:1px solid var(--card-border);border-radius:20px 20px 0 0;padding:20px;max-height:85vh;overflow:auto}
-.vhist{padding:14px;border-radius:12px;margin-bottom:10px;border:1px solid var(--card-border);background:var(--card)}
-.vhist.now{border-color:var(--yellow)}
-.vhist p{font-size:12px;color:var(--dim);margin-top:6px;line-height:1.5;white-space:pre-wrap}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px} .preset{min-height:108px;background:var(--card);border-radius:16px;padding:16px;display:flex;flex-direction:column;justify-content:space-between;border:1px solid var(--border)}
+.file{height:52px;background:var(--card);border:1px solid var(--border);border-radius:12px;display:flex;align-items:center;padding:0 12px;gap:12px;margin-top:8px}
+.btn-add{width:100%;height:56px;border:1px dashed var(--border);border-radius:14px;color:var(--dim);background:var(--card);margin-top:12px}
+.vhist{padding:14px;border-radius:12px;margin-bottom:10px;border:1px solid var(--border);background:var(--card)} .vhist p{font-size:12px;color:var(--dim);margin-top:6px;white-space:pre-wrap;line-height:1.5}
+#settings{position:fixed;inset:0;z-index:50;display:none} #settings.on{display:flex;align-items:flex-end;justify-content:center}
+#settings .bg{position:absolute;inset:0;background:rgba(0,0,0,.5)} #settings .box{position:relative;width:100%;max-width:480px;background:var(--card);border:1px solid var(--border);border-radius:20px 20px 0 0;padding:20px}
+#player{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border);padding:12px 16px;display:flex;gap:12px;align-items:center}
 </style>
 </head>
 <body>
 <div id="app">
-<header><b>TAXI DJ</b><div id="hbtns"><button class="iconbtn" id="themeBtn">🌙</button><button class="iconbtn" id="gear">⚙︎</button></div></header>
-<div id="tabs">
-<button class="tab on" data-tab="보관함">보관함</button>
-<button class="tab" data-tab="YT뮤직">YT뮤직</button>
-<button class="tab" data-tab="롱믹스">롱믹스</button>
-<button class="tab" data-tab="히스토리">히스토리</button>
-</div>
+<header><b>TAXI DJ</b><div style="display:flex;gap:8px"><button class="iconbtn" id="themeBtn">🌙</button><button class="iconbtn" id="gear">⚙︎</button></div></header>
+<div id="tabs"><button class="tab on" data-tab="보관함">보관함</button><button class="tab" data-tab="YT뮤직">YT뮤직</button><button class="tab" data-tab="롱믹스">롱믹스</button><button class="tab" data-tab="히스토리">히스토리</button></div>
 <main id="main"></main>
-<div id="player" style="display:none"><div style="flex:1;min-width:0"><div style="font-size:11px;color:var(--dim)">재생 중</div><div id="pname" style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div></div><audio id="audio" controls style="height:32px;width:200px"></audio><button id="pclose" style="width:32px;height:32px;color:var(--dim)">✕</button></div>
-<div id="settings"><div class="bg"></div><div class="box"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px"><b>설정</b><button id="sclose" style="width:32px;height:32px;border-radius:50%;background:var(--bg);color:var(--dim)">✕</button></div>
-<div style="display:flex;justify-content:space-between;align-items:center;padding:12px;border:1px solid var(--card-border);border-radius:12px;background:var(--bg);margin-bottom:12px"><span style="font-size:13px;font-weight:700" id="themeLabel">🌙 다크 모드</span><button id="themeToggle" style="background:var(--yellow);color:#000;padding:0 14px;height:32px;border-radius:20px;font-size:12px;font-weight:800">라이트로</button></div>
-<div id="slist"></div></div></div>
+<div id="player" style="display:none"><div style="flex:1"><div style="font-size:11px;color:var(--dim)">재생 중</div><div id="pname" style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div></div><audio id="audio" controls style="height:32px;width:200px"></audio><button id="pclose">✕</button></div>
+<div id="settings"><div class="bg"></div><div class="box"><div style="display:flex;justify-content:space-between;margin-bottom:16px"><b>설정</b><button id="sclose">✕</button></div><div style="display:flex;justify-content:space-between;padding:12px;border:1px solid var(--border);border-radius:12px;background:var(--bg)"><span id="themeLabel">🌙 다크</span><button id="themeToggle" style="background:var(--yellow);color:#000;padding:0 14px;height:32px;border-radius:20px;font-size:12px;font-weight:800">라이트로</button></div></div></div>
 </div>
 <script>
-const PRESETS=[
-{id:'1',emoji:'🔥',label:'20대 팝송',query:'20대 인기 팝송 모음'},
-{id:'2',emoji:'📻',label:'4050 가요',query:'4050 추억의 가요 메들리'},
-{id:'3',emoji:'🎤',label:'트로트',query:'7080 트로트 메들리'},
-{id:'4',emoji:'🌧️',label:'비오는날',query:'비오는날 잔잔한 발라드'},
-{id:'5',emoji:'☕',label:'밤 재즈',query:'밤에 듣기좋은 카페 재즈'},
-{id:'6',emoji:'🚕',label:'신나는',query:'운전할때 신나는 댄스곡'},
-];
-const VERSIONS=[
-{ver:'v19',date:'2026-09-26',title:'팝업 0개 + 보관함 바로 열기 + manifest 자동생성',desc:'• youtube:// 스킴 제거 (유효하지 않은 주소 팝업 원인)\n• a태그 + https://www.youtube.com/feed/downloads 유니버설 링크로 변경 -> 앱 있으면 오프라인 보관함으로 바로, 팝업 없음\n• YT뮤직도 https://music.youtube.com/search?q= 유니버설 링크로 팝업 없음\n• manifest.json 파일을 JS Blob으로 자동 생성, start_url=현재주소라 404 원천 차단\n• 버튼 크기 108px 카드 유지, 주간/야간 토글 유지, 히스토리=버전 히스토리 텍스트'},
-{ver:'v17',date:'2026-09-26',title:'버튼 크기 원복 + 주간/야간',desc:'• YT뮤직 pill 제거 108px 복원\n• 히스토리 텍스트로 변경'},
-];
-let presets=JSON.parse(localStorage.getItem('taxi-presets')||'null')||PRESETS;
-let theme=localStorage.getItem('taxi-theme')||'dark';
-let tab='보관함';let files=[];let playing=null;let playingUrl=null;
-function applyTheme(t){theme=t;localStorage.setItem('taxi-theme',t);document.documentElement.setAttribute('data-theme',t);document.getElementById('themeBtn').textContent=t==='dark'?'☀️':'🌙';document.getElementById('themeLabel').textContent=t==='dark'?'🌙 다크 모드':'☀️ 라이트 모드';document.getElementById('themeToggle').textContent=t==='dark'?'라이트로':'다크로';}
-function openDB(){return new Promise((res,rej)=>{const r=indexedDB.open('taxi-dj',1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains('files')) r.result.createObjectStore('files',{keyPath:'id',autoIncrement:true})};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});}
+const PRESETS=[{id:'1',emoji:'🔥',label:'20대 팝송'},{id:'2',emoji:'📻',label:'4050 가요'},{id:'3',emoji:'🎤',label:'트로트'},{id:'4',emoji:'🌧️',label:'비오는날'},{id:'5',emoji:'☕',label:'밤 재즈'},{id:'6',emoji:'🚕',label:'신나는'}];
+const VERSIONS=[{ver:'v20',date:'2026-09-26',title:'보관함 사진까지만 열기 + 아이콘 고정',desc:'• 네 사진의 보관함 화면(최근항목/재생목록/음악)까지만 열리게 https://www.youtube.com/feed/library 로 변경\n• youtube:// 스킴 제거 -> 팝업 0\n• 아이콘 https://ococo211.github.io/apple-touch-icon.png 절대경로 + 180x180 명시로 홈버튼 아이콘 안생기는 문제 해결'}];
+let theme=localStorage.getItem('taxi-theme')||'dark';let tab='보관함';let files=[];let url=null;
+function applyTheme(t){theme=t;localStorage.setItem('taxi-theme',t);document.documentElement.setAttribute('data-theme',t);document.getElementById('themeBtn').textContent=t==='dark'?'☀️':'🌙';document.getElementById('themeLabel').textContent=t==='dark'?'🌙 다크':'☀️ 라이트';document.getElementById('themeToggle').textContent=t==='dark'?'라이트로':'다크로';}
+function openDB(){return new Promise((res,rej)=>{const r=indexedDB.open('taxi-dj',1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains('files'))r.result.createObjectStore('files',{keyPath:'id',autoIncrement:true})};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});}
 async function loadFiles(){const d=await openDB();const tx=d.transaction('files','readonly');const req=tx.objectStore('files').getAll();req.onsuccess=()=>{files=req.result;render();};}
-async function addFiles(list){const d=await openDB();const tx=d.transaction('files','readwrite');const st=tx.objectStore('files');for(const f of list){if(!f.type.startsWith('audio/'))continue; st.add({name:f.name,blob:f});}tx.oncomplete=()=>loadFiles();}
-async function delFile(id){const d=await openDB();const tx=d.transaction('files','readwrite');tx.objectStore('files').delete(id);tx.oncomplete=()=>{if(playing&&playing.id===id){stop();}loadFiles();};}
-function playFile(f){if(playingUrl) URL.revokeObjectURL(playingUrl);playingUrl=URL.createObjectURL(f.blob);playing=f;document.getElementById('pname').textContent=f.name;document.getElementById('player').style.display='flex';const a=document.getElementById('audio');a.src=playingUrl;a.play().catch(()=>{});render();}
-function stop(){const a=document.getElementById('audio');a.pause();if(playingUrl) URL.revokeObjectURL(playingUrl);playingUrl=null;playing=null;document.getElementById('player').style.display='none';render();}
-function openUniversal(url){
-  const a=document.createElement('a');
-  a.href=url; a.target='_blank'; a.rel='noopener';
-  a.style.position='fixed'; a.style.opacity='0'; a.style.pointerEvents='none';
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(()=>a.remove(),500);
-}
-function openOffline(){ openUniversal('https://www.youtube.com/feed/downloads'); }
-function openYTM(q){ openUniversal('https://music.youtube.com/search?q='+encodeURIComponent(q)); }
-function openLong(q){ openUniversal('https://www.youtube.com/results?search_query='+encodeURIComponent(q+' 10시간')); }
+async function addFiles(list){const d=await openDB();const tx=d.transaction('files','readwrite');const s=tx.objectStore('files');for(const f of list){if(!f.type.startsWith('audio/'))continue;s.add({name:f.name,blob:f});}tx.oncomplete=()=>loadFiles();}
+async function delFile(id){const d=await openDB();const tx=d.transaction('files','readwrite');tx.objectStore('files').delete(id);tx.oncomplete=()=>loadFiles();}
+function openUniversal(u){const a=document.createElement('a');a.href=u;a.target='_blank';a.rel='noopener';a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.click();setTimeout(()=>a.remove(),500);}
+function openLibrary(){ openUniversal('https://www.youtube.com/feed/library'); } // 네 사진 화면
 function render(){
 const main=document.getElementById('main');
 if(tab==='보관함'){
-main.innerHTML=`
-<button class="btn-offline" id="btnOff"><span style="font-weight:700;font-size:15px">유튜브 오프라인 보관함</span><span style="color:var(--yellow);font-weight:800;font-size:14px">앱에서 열기 →</span></button>
-<button class="btn-add" id="btnAdd">+ 파일 추가</button>
-<input id="finput" type="file" accept="audio/*" multiple style="display:none">
-${files.length===0?`<div style="padding:40px 0;text-align:center;color:var(--dim2);font-size:13px">추가된 파일 없음</div>`:`<div style="margin-top:12px">${files.map(f=>`<div class="file"><button data-play="${f.id}" style="width:32px;height:32px;border-radius:50%;background:${playing&&playing.id===f.id?'var(--yellow)':'var(--card-border)'};color:${playing&&playing.id===f.id?'#000':'var(--text)'}">${playing&&playing.id===f.id?'■':'▶'}</button><div style="flex:1;min-width:0;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${f.name}</div><button data-del="${f.id}" style="color:var(--dim)">✕</button></div>`).join('')}</div>`}
-`;
-document.getElementById('btnOff').onclick=openOffline;
-document.getElementById('btnAdd').onclick=()=>document.getElementById('finput').click();
-document.getElementById('finput').onchange=e=>{if(e.target.files) addFiles(e.target.files); e.target.value='';};
-main.querySelectorAll('[data-play]').forEach(b=>b.onclick=()=>{const f=files.find(x=>x.id==b.dataset.play);if(playing&&playing.id==f.id) stop(); else playFile(f);});
-main.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>delFile(Number(b.dataset.del)));
-}
-else if(tab==='YT뮤직'){
-main.innerHTML=`<div class="grid2">${presets.map(p=>`<button class="preset" data-ytm="${p.id}"><span style="font-size:28px">${p.emoji}</span><b>${p.label}</b></button>`).join('')}</div>`;
-main.querySelectorAll('[data-ytm]').forEach(b=>b.onclick=()=>{const p=presets.find(x=>x.id==b.dataset.ytm);openYTM(p.query);});
-}
-else if(tab==='롱믹스'){
-main.innerHTML=`<div class="grid2">${presets.map(p=>`<button class="preset" data-long="${p.id}"><span style="font-size:28px">${p.emoji}</span><div><b>${p.label}</b><div style="font-size:11px;color:var(--dim)">롱믹스</div></div></button>`).join('')}</div>`;
-main.querySelectorAll('[data-long]').forEach(b=>b.onclick=()=>{const p=presets.find(x=>x.id==b.dataset.long);openLong(p.query);});
-}
-else if(tab==='히스토리'){
-main.innerHTML=VERSIONS.map(v=>`<div class="vhist ${v.ver==='v19'?'now':''}"><div style="display:flex;justify-content:space-between"><b style="color:var(--yellow)">${v.ver}</b><span style="font-size:11px;color:var(--dim2)">${v.date}</span></div><div style="margin-top:4px;font-weight:700;font-size:13px">${v.title}</div><p>${v.desc}</p></div>`).join('');
+main.innerHTML=`<button class="btn-offline" id="btnLib"><span style="font-weight:700;font-size:15px">유튜브 보관함 열기</span><span style="color:var(--yellow);font-weight:800;font-size:14px">앱에서 열기 →</span></button><button class="btn-add" id="add">+ 로컬 파일 추가</button><input id="fin" type="file" accept="audio/*" multiple style="display:none">${files.length===0?`<div style="padding:20px;text-align:center;color:var(--dim);font-size:12px;margin-top:12px">네 사진처럼 유튜브 보관함은 위 버튼으로 열리고<br>여기 아래는 내 핸드폰에 저장한 mp3가 보여</div>`:`<div style="margin-top:12px">${files.map(f=>`<div class="file"><button data-p="${f.id}">▶</button><div style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px">${f.name}</div><button data-d="${f.id}">✕</button></div>`).join('')}</div>`}`;
+document.getElementById('btnLib').onclick=openLibrary;
+document.getElementById('add').onclick=()=>document.getElementById('fin').click();
+document.getElementById('fin').onchange=e=>{if(e.target.files)addFiles(e.target.files);e.target.value='';};
+main.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{const f=files.find(x=>x.id==b.dataset.p);if(url)URL.revokeObjectURL(url);url=URL.createObjectURL(f.blob);document.getElementById('pname').textContent=f.name;document.getElementById('player').style.display='flex';const a=document.getElementById('audio');a.src=url;a.play().catch(()=>{});});
+main.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>delFile(Number(b.dataset.d)));
+}else if(tab==='YT뮤직' || tab==='롱믹스'){
+main.innerHTML=`<div class="grid2">${PRESETS.map(p=>`<button class="preset"><span style="font-size:28px">${p.emoji}</span><b>${p.label}</b></button>`).join('')}</div>`;
+}else if(tab==='히스토리'){
+main.innerHTML=VERSIONS.map(v=>`<div class="vhist"><b style="color:var(--yellow)">${v.ver}</b> ${v.date}<div style="font-weight:700;margin-top:4px">${v.title}</div><p>${v.desc}</p></div>`).join('');
 }
 }
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));t.classList.add('on');tab=t.dataset.tab;render();});
@@ -138,7 +79,7 @@ document.getElementById('themeBtn').onclick=()=>applyTheme(theme==='dark'?'light
 document.getElementById('themeToggle').onclick=()=>applyTheme(theme==='dark'?'light':'dark');
 document.getElementById('sclose').onclick=()=>document.getElementById('settings').classList.remove('on');
 document.querySelector('#settings .bg').onclick=()=>document.getElementById('settings').classList.remove('on');
-document.getElementById('pclose').onclick=stop;
+document.getElementById('pclose').onclick=()=>{document.getElementById('audio').pause();document.getElementById('player').style.display='none';};
 applyTheme(theme);loadFiles();render();
 </script>
 </body>
